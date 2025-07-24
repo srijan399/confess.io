@@ -41,7 +41,7 @@ export default function AdminPage({
             setLoading(true);
             console.log(resolvedParams.id);
             const response = await fetch(
-                `http://localhost:3000/api/getConfessions?roomId=${resolvedParams.id}`,
+                `/api/getConfessions?roomId=${resolvedParams.id}`,
                 {
                     method: "GET",
                     headers: {
