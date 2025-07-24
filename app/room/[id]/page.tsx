@@ -1,13 +1,9 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {
     Dialog,
@@ -21,84 +17,73 @@ import {
 import {
     MessageCircle,
     Send,
-    Heart,
     MessageSquare,
-    Eye,
     Sparkles,
     Lock,
     Copy,
     Check,
-    Moon,
-    Sun,
     ArrowLeft,
     Shield,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Room } from "@/app/_models/schema";
+import connectToDatabase from "@/lib/db";
 
 interface Confession {
-    id: string;
     content: string;
     timestamp: string;
-    likes: number;
-    replies: number;
-    views: number;
-    isLiked: boolean;
 }
 
-export default function RoomPage({ params }: { params: { id: string } }) {
-    const router = useRouter();
+export default function RoomPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const resolvedParams = React.use(params);
     const [confession, setConfession] = useState("");
-    const [isDark, setIsDark] = useState(true);
+    const router = useRouter();
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [copied, setCopied] = useState(false);
     const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+
     const [adminPassword, setAdminPassword] = useState("");
-    const [passwordError, setPasswordError] = useState("");
-    const [confessions, setConfessions] = useState<Confession[]>([
-        {
-            id: "1",
-            content:
-                "I've been pretending to understand cryptocurrency for 2 years just to fit in with my tech friends. I still have no idea what a blockchain actually is.",
-            timestamp: "2 hours ago",
-            likes: 24,
-            replies: 8,
-            views: 156,
-            isLiked: false,
-        },
-        {
-            id: "2",
-            content:
-                "I eat cereal for dinner at least 3 times a week because I'm too lazy to cook. My parents think I'm this independent adult but I'm basically a child.",
-            timestamp: "5 hours ago",
-            likes: 18,
-            replies: 12,
-            views: 203,
-            isLiked: true,
-        },
-        {
-            id: "3",
-            content:
-                "I've been using the same password for everything since 2015. It's my pet's name followed by '123'. I know it's terrible but I'm too scared to change it now.",
-            timestamp: "1 day ago",
-            likes: 31,
-            replies: 6,
-            views: 289,
-            isLiked: false,
-        },
-    ]);
 
-    const roomName = "Anonymous Thoughts";
-    const roomUrl = `confess.io/room/${params.id}`;
-    const ADMIN_PASSWORD = "admin123"; // In a real app, this would be stored securely
+    const [_passwordError, setPasswordError] = useState("");
 
-    const handleAdminAccess = () => {
-        if (adminPassword === ADMIN_PASSWORD) {
-            router.push(`/room/${params.id}/admin`);
-        } else {
-            setPasswordError("Invalid password");
-            setTimeout(() => setPasswordError(""), 3000);
+    const [roomName, _setRoomName] = useState("Secrets");
+    const [_loading, _setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    const roomUrl = `confess.io/room/${resolvedParams.id}`;
+
+    const handleAdminAccess = async () => {
+        try {
+            const res = await fetch(`/api/check`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    roomId: resolvedParams.id,
+                    password: adminPassword,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                router.push(`/room/${resolvedParams.id}/admin`);
+            } else {
+                setPasswordError("Invalid password");
+            }
+        } catch (error) {
+            setPasswordError("Failed to check password");
+        } finally {
+            setShowPasswordDialog(false);
+            setAdminPassword("");
         }
     };
 
@@ -107,40 +92,47 @@ export default function RoomPage({ params }: { params: { id: string } }) {
         if (!confession.trim()) return;
 
         setIsSubmitting(true);
+        setError("");
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        const newConfession: Confession = {
-            id: Date.now().toString(),
-            content: confession,
-            timestamp: "Just now",
-            likes: 0,
-            replies: 0,
-            views: 1,
-            isLiked: false,
-        };
-
-        setConfessions((prev) => [newConfession, ...prev]);
-        setConfession("");
-        setIsSubmitting(false);
-        setShowSuccess(true);
-
-        setTimeout(() => setShowSuccess(false), 3000);
-    };
-
-    const handleLike = (id: string) => {
-        setConfessions((prev) =>
-            prev.map((conf) =>
-                conf.id === id
-                    ? {
-                          ...conf,
-                          likes: conf.isLiked ? conf.likes - 1 : conf.likes + 1,
-                          isLiked: !conf.isLiked,
-                      }
-                    : conf
-            )
+        console.log(
+            "Submitting confession:",
+            resolvedParams.id,
+            confession.trim()
         );
+
+        try {
+            const response = await fetch(`/api/confess`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    roomId: resolvedParams.id,
+                    content: confession.trim(),
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const newConfession: Confession = {
+                    content: data.confession.content,
+                    timestamp: new Date(
+                        data.confession.timestamp
+                    ).toLocaleString(),
+                };
+
+                setConfession("");
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 3000);
+            } else {
+                setError(data.error || "Failed to submit confession");
+            }
+        } catch (err) {
+            setError("Failed to submit confession. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const copyRoomUrl = () => {
@@ -149,23 +141,32 @@ export default function RoomPage({ params }: { params: { id: string } }) {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const getRandomAvatar = () => {
-        const colors = [
-            "bg-violet-500",
-            "bg-cyan-500",
-            "bg-purple-500",
-            "bg-pink-500",
-            "bg-indigo-500",
-        ];
-        return colors[Math.floor(Math.random() * colors.length)];
-    };
+    useEffect(() => {
+        const fetchRoomData = async () => {
+            try {
+                _setLoading(true);
+                const response = await fetch(
+                    `/api/getConfessions?roomId=${resolvedParams.id}`
+                );
+                const data = await response.json();
+
+                if (data.success) {
+                    _setRoomName(data.room.name);
+                } else {
+                    setError(data.error || "Failed to load room data");
+                }
+            } catch (err) {
+                setError("Failed to load room data. Please try again.");
+            } finally {
+                _setLoading(false);
+            }
+        };
+
+        fetchRoomData();
+    }, [resolvedParams.id]);
 
     return (
-        <div
-            className={`min-h-screen transition-all duration-500 ${
-                isDark ? "dark" : ""
-            }`}
-        >
+        <div className={`min-h-screen transition-all duration-500`}>
             <div className="min-h-screen bg-gradient-to-br from-violet-900 via-purple-900 to-cyan-900 dark:from-violet-950 dark:via-purple-950 dark:to-cyan-950">
                 {/* Animated Background Elements */}
                 <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -178,18 +179,18 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                 <header className="relative z-50 backdrop-blur-lg bg-white/10 dark:bg-black/10 border-b border-white/20">
                     <div className="container mx-auto px-4 py-4">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div className="flex items-center space-x-4">
-                                <Link href="/">
+                            <div className="flex items-center justify-between space-x-6">
+                                <Link href="/" className="flex items-center">
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         className="text-white/80 hover:text-white hover:bg-white/10"
                                     >
-                                        <ArrowLeft className="w-4 h-4 mr-2" />
+                                        <ArrowLeft className="w-3 h-4" />
                                         Back
                                     </Button>
                                 </Link>
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center justify-between space-x-2">
                                     <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-cyan-500 rounded-lg flex items-center justify-center">
                                         <Lock className="w-4 h-4 text-white" />
                                     </div>
@@ -201,107 +202,68 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                                             Anonymous Room
                                         </p>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                                <Dialog
-                                    open={showPasswordDialog}
-                                    onOpenChange={setShowPasswordDialog}
-                                >
-                                    <DialogTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="text-white/80 hover:text-white hover:bg-white/10"
-                                        >
-                                            <Shield className="w-4 h-4 mr-2" />
-                                            <span className="hidden sm:inline">
-                                                Treasury
-                                            </span>
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-md bg-white/95 dark:bg-black/95 backdrop-blur-lg border border-white/20">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-center">
-                                                Access Treasury
-                                            </DialogTitle>
-                                            <DialogDescription className="text-center">
-                                                Enter the room password to
-                                                access the admin dashboard
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="space-y-4">
-                                            <Input
-                                                type="password"
-                                                placeholder="Enter room password"
-                                                value={adminPassword}
-                                                onChange={(e) => {
-                                                    setAdminPassword(
-                                                        e.target.value
-                                                    );
-                                                    setPasswordError("");
-                                                }}
-                                                onKeyPress={(e) => {
-                                                    if (e.key === "Enter") {
-                                                        handleAdminAccess();
-                                                    }
-                                                }}
-                                                className="w-full"
-                                            />
-                                            {passwordError && (
-                                                <p className="text-red-500 text-sm text-center">
-                                                    {passwordError}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <DialogFooter className="flex justify-center space-x-2">
+                                    <Dialog
+                                        open={showPasswordDialog}
+                                        onOpenChange={setShowPasswordDialog}
+                                    >
+                                        <DialogTrigger asChild>
                                             <Button
                                                 variant="ghost"
-                                                onClick={() => {
-                                                    setShowPasswordDialog(
-                                                        false
-                                                    );
-                                                    setAdminPassword("");
-                                                    setPasswordError("");
-                                                }}
+                                                size="sm"
+                                                className="text-white/80 hover:text-white hover:bg-white/10"
                                             >
-                                                Cancel
+                                                <Shield className="w-4 h-4 mr-2" />
+                                                <span className="hidden sm:inline">
+                                                    Treasury
+                                                </span>
                                             </Button>
-                                            <Button
-                                                onClick={handleAdminAccess}
-                                                className="bg-gradient-to-r from-violet-500 to-cyan-500 hover:from-violet-600 hover:to-cyan-600"
-                                            >
-                                                Access
-                                            </Button>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </Dialog>
-
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setIsDark(!isDark)}
-                                    className="text-white/80 hover:text-white hover:bg-white/10"
-                                >
-                                    {isDark ? (
-                                        <Sun className="w-4 h-4" />
-                                    ) : (
-                                        <Moon className="w-4 h-4" />
-                                    )}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={copyRoomUrl}
-                                    className="text-white/80 hover:text-white hover:bg-white/10"
-                                >
-                                    {copied ? (
-                                        <Check className="w-4 h-4" />
-                                    ) : (
-                                        <Copy className="w-4 h-4" />
-                                    )}
-                                </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-md bg-white/95 dark:bg-black/95 backdrop-blur-lg border border-white/20">
+                                            <DialogHeader>
+                                                <DialogTitle className="text-center">
+                                                    Access Treasury
+                                                </DialogTitle>
+                                                <DialogDescription className="text-center">
+                                                    Enter the room password to
+                                                    access the admin dashboard
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="space-y-4">
+                                                <Input
+                                                    type="password"
+                                                    placeholder="Enter room password"
+                                                    value={adminPassword}
+                                                    onChange={(e) => {
+                                                        setAdminPassword(
+                                                            e.target.value
+                                                        );
+                                                    }}
+                                                    className="w-full"
+                                                />
+                                            </div>
+                                            <DialogFooter className="flex justify-center space-x-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => {
+                                                        setShowPasswordDialog(
+                                                            false
+                                                        );
+                                                        setAdminPassword("");
+                                                        setPasswordError("");
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    onClick={handleAdminAccess}
+                                                    className="bg-gradient-to-r from-violet-500 to-cyan-500 hover:from-violet-600 hover:to-cyan-600"
+                                                >
+                                                    Access
+                                                </Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -328,6 +290,18 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                                 <code className="bg-white/10 px-2 py-1 rounded text-white/80 break-all">
                                     {roomUrl}
                                 </code>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={copyRoomUrl}
+                                    className="text-white/80 hover:text-white hover:bg-white/10"
+                                >
+                                    {copied ? (
+                                        <Check className="w-4 h-4" />
+                                    ) : (
+                                        <Copy className="w-4 h-4" />
+                                    )}
+                                </Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -394,105 +368,17 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                                     </span>
                                 </div>
                             )}
+
+                            {/* Error Message */}
+                            {error && (
+                                <div className="mt-4 p-3 sm:p-4 bg-red-500/20 border border-red-500/30 rounded-lg flex items-center space-x-2">
+                                    <span className="text-red-400 font-medium text-sm sm:text-base">
+                                        {error}
+                                    </span>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
-
-                    {/* Confessions Feed */}
-                    <div className="space-y-4 sm:space-y-6">
-                        <h3 className="text-lg sm:text-xl font-semibold text-white flex items-center">
-                            <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                            Recent Confessions
-                        </h3>
-
-                        {confessions.map((conf, index) => (
-                            <Card
-                                key={conf.id}
-                                className="backdrop-blur-lg bg-white/10 border border-white/20 hover:bg-white/15 transition-all duration-300"
-                            >
-                                <CardContent className="p-4 sm:p-6">
-                                    <div className="flex items-start space-x-3 sm:space-x-4">
-                                        <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
-                                            <AvatarFallback
-                                                className={`${getRandomAvatar()} text-white`}
-                                            >
-                                                ?
-                                            </AvatarFallback>
-                                        </Avatar>
-
-                                        <div className="flex-1 space-y-2 sm:space-y-3 min-w-0">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <Badge
-                                                    variant="secondary"
-                                                    className="bg-white/20 text-white/80 text-xs"
-                                                >
-                                                    Anonymous
-                                                </Badge>
-                                                <span className="text-white/60 text-xs sm:text-sm">
-                                                    {conf.timestamp}
-                                                </span>
-                                            </div>
-
-                                            <p className="text-white leading-relaxed text-sm sm:text-base break-words">
-                                                {conf.content}
-                                            </p>
-
-                                            <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleLike(conf.id)
-                                                    }
-                                                    className={`text-white/60 hover:text-white hover:bg-white/10 p-1 sm:p-2 ${
-                                                        conf.isLiked
-                                                            ? "text-red-400 hover:text-red-300"
-                                                            : ""
-                                                    }`}
-                                                >
-                                                    <Heart
-                                                        className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 ${
-                                                            conf.isLiked
-                                                                ? "fill-current"
-                                                                : ""
-                                                        }`}
-                                                    />
-                                                    <span className="text-xs sm:text-sm">
-                                                        {conf.likes}
-                                                    </span>
-                                                </Button>
-
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="text-white/60 hover:text-white hover:bg-white/10 p-1 sm:p-2"
-                                                >
-                                                    <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                                                    <span className="text-xs sm:text-sm">
-                                                        {conf.replies}
-                                                    </span>
-                                                </Button>
-
-                                                <div className="flex items-center text-white/60 text-xs sm:text-sm">
-                                                    <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                                                    {conf.views}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-
-                    {/* Load More */}
-                    <div className="text-center mt-6 sm:mt-8">
-                        <Button
-                            variant="ghost"
-                            className="text-white/80 hover:text-white hover:bg-white/10 text-sm sm:text-base"
-                        >
-                            Load More Confessions
-                        </Button>
-                    </div>
                 </div>
             </div>
         </div>

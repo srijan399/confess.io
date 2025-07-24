@@ -2,7 +2,7 @@ POST http://localhost:3000/api/createRoom
 Content-Type: application/json
 
 {
-  "name": "My Secret Room",
+  "name": "Room2",
   "description": "A place for safe confessions",
   "password": "mysecretpass"
 }

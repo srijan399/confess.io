@@ -1,0 +1,2 @@
+GET http://localhost:3000/api/getConfessions?roomId=6882aae8f6be9d13d7fc058f
+

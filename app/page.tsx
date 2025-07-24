@@ -37,6 +37,12 @@ export default function ConfessLanding() {
     const [roomDescription, setRoomDescription] = useState("");
     const [roomPassword, setRoomPassword] = useState("");
 
+    const [currentRoom, setCurrentRoom] = useState({
+        name: roomName,
+        description: roomDescription,
+        password: roomPassword,
+    });
+
     const confessions = [
         "I've been pretending to like my best friend's cooking for 3 years... 😅",
         "I still sleep with a nightlight and I'm 25 years old. ✨",
@@ -94,6 +100,12 @@ export default function ConfessLanding() {
 
             const data = await res.json();
             console.log("Room created successfully:", data);
+
+            setCurrentRoom({
+                name: data.room.name,
+                description: data.room.description,
+                password: data.room.password,
+            });
 
             router.push(`/room/${data.room._id}`);
         } catch (error) {
@@ -220,7 +232,7 @@ export default function ConfessLanding() {
                                         Create Your Magical Room
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="m-auto backdrop-blur-lg bg-gradient-to-br from-white/10 to-pink-500/10 border border-pink-300/30 text-white max-w-sm sm:max-w-md shadow-2xl shadow-pink-500/20 rounded-2xl">
+                                <DialogContent className="w-[92%] backdrop-blur-lg bg-gradient-to-br from-white/10 to-pink-500/10 border border-pink-300/30 text-white max-w-sm sm:max-w-sm shadow-2xl shadow-pink-500/20 rounded-2xl">
                                     <DialogHeader>
                                         <DialogTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-violet-400 bg-clip-text text-transparent text-center">
                                             Create Your Magical Room
@@ -248,7 +260,7 @@ export default function ConfessLanding() {
                                                 }
                                             />
                                             <Input
-                                                placeholder="Description (e.g., Share your secrets safely)"
+                                                placeholder="Description (e.g., Share your secrets)"
                                                 className="bg-white/10 border-pink-300/30 text-white placeholder:text-white/60 focus:border-pink-400 focus:ring-2 focus:ring-pink-400/20 rounded-xl h-11 md:h-12 transition-all duration-300"
                                                 value={roomDescription}
                                                 onChange={(e) =>
