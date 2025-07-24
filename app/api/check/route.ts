@@ -1,4 +1,4 @@
-import { IConfession, Room } from "@/app/_models/schema";
+import { Room } from "@/app/_models/schema";
 import connectToDatabase from "@/lib/db";
 import { NextResponse } from "next/server";
 

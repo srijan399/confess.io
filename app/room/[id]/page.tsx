@@ -17,7 +17,7 @@ import {
 import {
     MessageCircle,
     Send,
-    MessageSquare,
+    // MessageSquare,
     Sparkles,
     Lock,
     Copy,
@@ -27,13 +27,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Room } from "@/app/_models/schema";
-import connectToDatabase from "@/lib/db";
-
-interface Confession {
-    content: string;
-    timestamp: string;
-}
+// import { Room } from "@/app/_models/schema";
+// import connectToDatabase from "@/lib/db";
 
 export default function RoomPage({
     params,
@@ -51,10 +46,10 @@ export default function RoomPage({
 
     const [adminPassword, setAdminPassword] = useState("");
 
-    const [_passwordError, setPasswordError] = useState("");
+    const [, setPasswordError] = useState("");
 
     const [roomName, _setRoomName] = useState("Secrets");
-    const [_loading, _setLoading] = useState(true);
+    const [, _setLoading] = useState(true);
     const [error, setError] = useState("");
 
     const roomUrl = `confess.io/room/${resolvedParams.id}`;
@@ -81,6 +76,7 @@ export default function RoomPage({
             }
         } catch (error) {
             setPasswordError("Failed to check password");
+            console.error("Error checking password:", error);
         } finally {
             setShowPasswordDialog(false);
             setAdminPassword("");
@@ -115,13 +111,6 @@ export default function RoomPage({
             const data = await response.json();
 
             if (data.success) {
-                const newConfession: Confession = {
-                    content: data.confession.content,
-                    timestamp: new Date(
-                        data.confession.timestamp
-                    ).toLocaleString(),
-                };
-
                 setConfession("");
                 setShowSuccess(true);
                 setTimeout(() => setShowSuccess(false), 3000);
@@ -130,6 +119,7 @@ export default function RoomPage({
             }
         } catch (err) {
             setError("Failed to submit confession. Please try again.");
+            console.error("Error submitting confession:", err);
         } finally {
             setIsSubmitting(false);
         }
@@ -157,6 +147,7 @@ export default function RoomPage({
                 }
             } catch (err) {
                 setError("Failed to load room data. Please try again.");
+                console.error("Error fetching room data:", err);
             } finally {
                 _setLoading(false);
             }
@@ -313,7 +304,7 @@ export default function RoomPage({
                                 <div className="relative">
                                     <Textarea
                                         value={confession}
-                                        onChange={(e: any) =>
+                                        onChange={(e) =>
                                             setConfession(e.target.value)
                                         }
                                         placeholder="Share your confessions, feedback, gossip, anything... Type your thoughts here and let them out anonymously."

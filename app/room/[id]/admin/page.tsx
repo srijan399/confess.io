@@ -3,21 +3,21 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
     ArrowLeft,
-    Trash2,
-    Eye,
-    EyeOff,
-    Download,
-    Search,
-    Filter,
-    MoreVertical,
+    // Trash2,
+    // Eye,
+    // EyeOff,
+    // Download,
+    // Search,
+    // Filter,
+    // MoreVertical,
 } from "lucide-react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 
 import { IConfession } from "@/app/_models/schema";
 
@@ -27,10 +27,6 @@ export default function AdminPage({
     params: Promise<{ id: string }>;
 }) {
     const [confessions, setConfessions] = useState<IConfession[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filterType, setFilterType] = useState<"all" | "hidden" | "reported">(
-        "all"
-    );
     const [roomName, setRoomName] = useState("Anonymous Thoughts");
     const [loading, setLoading] = useState(true);
     const resolvedParams = React.use(params);

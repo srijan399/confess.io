@@ -14,7 +14,7 @@ import {
     Lock,
     Coins,
     Sparkles,
-    Router,
+    // Router,
 } from "lucide-react";
 import {
     Dialog,
@@ -23,7 +23,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { set } from "mongoose";
+// import { set } from "mongoose";
 import { useRouter } from "next/navigation";
 
 export default function ConfessLanding() {
@@ -42,6 +42,8 @@ export default function ConfessLanding() {
         description: roomDescription,
         password: roomPassword,
     });
+
+    console.log("Current Room:", currentRoom);
 
     const confessions = [
         "I've been pretending to like my best friend's cooking for 3 years... 😅",
@@ -343,7 +345,7 @@ export default function ConfessLanding() {
                         <div className="text-center mb-12 md:mb-20">
                             <div className="inline-flex items-center gap-2 px-3 py-2 md:px-4 rounded-full bg-gradient-to-r from-pink-500/20 to-violet-500/20 border border-pink-500/30 backdrop-blur-sm mb-4 md:mb-6">
                                 <span className="text-pink-200 text-xs md:text-sm font-medium">
-                                    ✨ Why You'll Love It ✨
+                                    ✨ Why You&apos;ll Love It ✨
                                 </span>
                             </div>
                             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 md:mb-6 px-4">
