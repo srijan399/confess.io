@@ -52,7 +52,7 @@ export default function RoomPage({
     const [, _setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const roomUrl = `confess-io.vercel.app/room/${resolvedParams.id}`;
+    const roomUrl = `confess.io/room/${resolvedParams.id}`;
 
     const handleAdminAccess = async () => {
         try {
@@ -159,15 +159,13 @@ export default function RoomPage({
     return (
         <div className={`min-h-screen transition-all duration-500`}>
             <div className="min-h-screen bg-gradient-to-br from-violet-900 via-purple-900 to-cyan-900 dark:from-violet-950 dark:via-purple-950 dark:to-cyan-950">
-                {/* Animated Background Elements */}
-                <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-pink-500/30 to-violet-500/30 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-gradient-to-r from-cyan-400/25 to-purple-500/25 rounded-full blur-3xl animate-pulse delay-1000"></div>
-                    <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-gradient-to-r from-rose-400/20 to-pink-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-                    <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-r from-fuchsia-400/15 to-pink-400/15 rounded-full blur-2xl animate-bounce delay-2000"></div>
-                    <div className="absolute bottom-20 left-10 w-40 h-40 bg-gradient-to-r from-purple-400/20 to-violet-400/20 rounded-full blur-2xl animate-bounce delay-3000"></div>
+                {/* <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-violet-500/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                    <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
                 </div>
-                {/* Header */}
+
+                
                 <header className="relative z-50 backdrop-blur-lg bg-white/10 dark:bg-black/10 border-b border-white/20">
                     <div className="container mx-auto px-4 py-4">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -256,6 +254,129 @@ export default function RoomPage({
                                         </DialogContent>
                                     </Dialog>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </header> */}
+
+                <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-pink-500/30 to-violet-500/30 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-gradient-to-r from-cyan-400/25 to-purple-500/25 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                    <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-gradient-to-r from-rose-400/20 to-pink-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+                    <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-r from-fuchsia-400/15 to-pink-400/15 rounded-full blur-2xl animate-bounce delay-2000"></div>
+                    <div className="absolute bottom-20 left-10 w-40 h-40 bg-gradient-to-r from-purple-400/20 to-violet-400/20 rounded-full blur-2xl animate-bounce delay-3000"></div>
+                </div>
+
+                {/* Header */}
+                <header className="relative z-50 backdrop-blur-xl bg-white/5 dark:bg-black/5 border-b border-white/10 shadow-2xl">
+                    {/* Header floating gradient orbs */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute -top-10 -left-10 w-20 h-20 bg-gradient-to-br from-violet-400/20 to-purple-600/20 rounded-full blur-xl animate-pulse"></div>
+                        <div className="absolute -top-5 right-1/3 w-16 h-16 bg-gradient-to-br from-cyan-400/15 to-blue-600/15 rounded-full blur-lg animate-pulse delay-1000"></div>
+                    </div>
+
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16 sm:h-20">
+                            {/* Left section - Back button */}
+                            <div className="flex items-center min-w-0 flex-1">
+                                <Link href="/" className="flex-shrink-0">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 p-2 sm:px-4 sm:py-2"
+                                    >
+                                        <ArrowLeft className="w-4 h-4" />
+                                        <span className="ml-2 hidden sm:inline font-medium">
+                                            Back
+                                        </span>
+                                    </Button>
+                                </Link>
+                            </div>
+
+                            {/* Center section - Room info */}
+                            <div className="flex items-center justify-center flex-shrink min-w-0 px-4">
+                                <div className="flex items-center space-x-3 max-w-xs sm:max-w-md">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-500 via-purple-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex-shrink-0">
+                                        <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                                    </div>
+                                    <div className="text-center min-w-0">
+                                        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold truncate bg-gradient-to-r from-violet-200 to-cyan-200 bg-clip-text text-transparent leading-tight">
+                                            {roomName}
+                                        </h1>
+                                        <p className="text-xs sm:text-sm text-white/60 font-medium">
+                                            Anonymous Room
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right section - Admin access */}
+                            <div className="flex items-center justify-end min-w-0 flex-1">
+                                <Dialog
+                                    open={showPasswordDialog}
+                                    onOpenChange={setShowPasswordDialog}
+                                >
+                                    <DialogTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 group p-2 sm:px-4 sm:py-2"
+                                        >
+                                            <Shield className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                                            <span className="ml-2 hidden sm:inline bg-gradient-to-r from-violet-200 to-cyan-200 bg-clip-text text-transparent font-medium">
+                                                Treasury
+                                            </span>
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-md bg-gradient-to-br from-white/95 to-white/90 dark:from-black/95 dark:to-black/90 backdrop-blur-xl border border-white/20 shadow-2xl">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-cyan-500/5 rounded-lg"></div>
+                                        <div className="relative">
+                                            <DialogHeader>
+                                                <DialogTitle className="text-center bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent font-bold text-xl">
+                                                    Access Treasury
+                                                </DialogTitle>
+                                                <DialogDescription className="text-center text-gray-600 dark:text-gray-300">
+                                                    Enter the room password to
+                                                    access the admin dashboard
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="space-y-4 py-4">
+                                                <Input
+                                                    type="password"
+                                                    placeholder="Enter room password"
+                                                    value={adminPassword}
+                                                    onChange={(e) => {
+                                                        setAdminPassword(
+                                                            e.target.value
+                                                        );
+                                                    }}
+                                                    className="w-full bg-white/50 dark:bg-black/50 border-white/30 focus:border-violet-400 transition-all duration-300"
+                                                />
+                                            </div>
+                                            <DialogFooter className="flex justify-center space-x-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => {
+                                                        setShowPasswordDialog(
+                                                            false
+                                                        );
+                                                        setAdminPassword("");
+                                                        setPasswordError("");
+                                                    }}
+                                                    className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    onClick={handleAdminAccess}
+                                                    className="bg-gradient-to-r from-violet-500 to-cyan-500 hover:from-violet-600 hover:to-cyan-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                                >
+                                                    Access
+                                                </Button>
+                                            </DialogFooter>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                         </div>
                     </div>
