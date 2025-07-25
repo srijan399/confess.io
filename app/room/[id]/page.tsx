@@ -52,7 +52,7 @@ export default function RoomPage({
     const [, _setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const roomUrl = `confess.io/room/${resolvedParams.id}`;
+    const roomUrl = `confess-io.vercel.app/room/${resolvedParams.id}`;
 
     const handleAdminAccess = async () => {
         try {
@@ -161,11 +161,12 @@ export default function RoomPage({
             <div className="min-h-screen bg-gradient-to-br from-violet-900 via-purple-900 to-cyan-900 dark:from-violet-950 dark:via-purple-950 dark:to-cyan-950">
                 {/* Animated Background Elements */}
                 <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-violet-500/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-                    <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-pink-500/30 to-violet-500/30 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-gradient-to-r from-cyan-400/25 to-purple-500/25 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                    <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-gradient-to-r from-rose-400/20 to-pink-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+                    <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-r from-fuchsia-400/15 to-pink-400/15 rounded-full blur-2xl animate-bounce delay-2000"></div>
+                    <div className="absolute bottom-20 left-10 w-40 h-40 bg-gradient-to-r from-purple-400/20 to-violet-400/20 rounded-full blur-2xl animate-bounce delay-3000"></div>
                 </div>
-
                 {/* Header */}
                 <header className="relative z-50 backdrop-blur-lg bg-white/10 dark:bg-black/10 border-b border-white/20">
                     <div className="container mx-auto px-4 py-4">
