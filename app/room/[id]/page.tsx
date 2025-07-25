@@ -52,7 +52,7 @@ export default function RoomPage({
     const [, _setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const roomUrl = `confess.io/room/${resolvedParams.id}`;
+    const roomUrl = `confess-io.vercel.app/room/${resolvedParams.id}`;
 
     const handleAdminAccess = async () => {
         try {
